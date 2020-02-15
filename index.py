@@ -36,26 +36,30 @@ Book.__table__.create(engine)
 
 session.add(Author(first_name='tolstoy', last_name='lev'))
 session.add(Author(first_name='turgenev', last_name='ivan'))
+session.add(Author(first_name='pushkin', last_name='alex'))
 
 session.add(Book(title='war and peace', copyright='1880', author_id=1))
 session.add(Book(title='anna karenina', copyright='1890', author_id=1))
 session.add(Book(title='rudin', copyright='1870', author_id=2))
+session.add(Book(title='oblomov', copyright='1860', author_id=10))
 
 session.commit()
 
 
-authors_result = []
-authors = session.query(Author).all()
-for author in authors:
-    authors_result.append({'id': author.id, 'first_name': author.first_name})
+stmt = 'select * from authors left join books on authors.id = books.author_id'
+result_proxy = connection.execute(stmt)
+results = result_proxy.fetchall()
+for res in results:
+    print(res.first_name, res.title, res.copyright)
 
 
-books = session.query(Book).all()
-for book in books:
-    author = next(filter(lambda a: a['id'] == book.author_id, authors_result))
-    print(book.id, book.title, book.copyright, author['first_name'])
+print('\n\n')
 
 
-
+stmt = 'select * from authors join books on authors.id = books.author_id'
+result_proxy = connection.execute(stmt)
+results = result_proxy.fetchall()
+for res in results:
+    print(res.first_name, res.title, res.copyright)
 
 
