@@ -18,7 +18,6 @@ class Author(Base):
     id = Column(Integer, primary_key=True)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
-    # books = relationship("Book")
  
 
 class Book(Base):
@@ -36,24 +35,28 @@ Book.__table__.create(engine)
 
 session.add(Author(first_name='tolstoy', last_name='lev'))
 session.add(Author(first_name='turgenev', last_name='ivan'))
+session.add(Author(first_name='pushkin', last_name='alex'))
 
 session.add(Book(title='war and peace', copyright='1880', author_id=1))
 session.add(Book(title='anna karenina', copyright='1890', author_id=1))
 session.add(Book(title='rudin', copyright='1870', author_id=2))
+session.add(Book(title='oblomov', copyright='1860', author_id=10))
 
 session.commit()
 
 
-authors_result = []
-authors = session.query(Author).all()
-for author in authors:
-    authors_result.append({'id': author.id, 'first_name': author.first_name})
+q = session.query(Author, Book).join(Author, Author.id == Book.author_id)
+print(q, '\n')
+for row in q:
+    print(row.Author.first_name, row.Book.title, row.Book.copyright)
+print('\n\n')
 
 
-books = session.query(Book).all()
-for book in books:
-    author = next(filter(lambda a: a['id'] == book.author_id, authors_result))
-    print(book.id, book.title, book.copyright, author['first_name'])
+
+# OUTPUT:
+# tolstoy war and peace 1880
+# tolstoy anna karenina 1890
+# turgenev rudin 1870
 
 
 
